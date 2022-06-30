@@ -30,6 +30,20 @@ body:
     validations:
       required: true
   
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+      options:
+        - 1.0.2
+        - 1.0.3
+        - 1.14.10
+    validations:
+      required: true
+
+
+  
   - type: markdown
     attributes:
       value: |
@@ -56,3 +70,10 @@ body:
         - Test Labo
 
       
+  - type: markdown
+    attributes:
+      value: |
+       -----
+       ## Demandes liées
+       -
+       -  
