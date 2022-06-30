@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop
+  labels:
+    name: workshop
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: workshop
+  name: hello-world-node-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-node
+  template:
+    metadata:
+      labels:
+        app: hello-world-node
+    spec:
+      containers:
+      - name: hello-world-node
+        image: IMAGE_NAME
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: workshop
+  name: hello-world-node
+spec:
+  selector:
+    app: hello-world-node
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
+---

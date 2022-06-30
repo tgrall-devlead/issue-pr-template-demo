@@ -1,0 +1,58 @@
+name: Demo bug
+description: Bug et plan de test
+title: "[Test]: "
+labels: ["task", "triage", "test"]
+
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+       Déscription du problème et des tests à effectuer
+
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Categories
+      options:
+        - label: SCM-CCT
+        - label: SCM-TTT
+        - label: DEM-CCT
+        - label: DEM-PWD
+
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Description du bug
+      placeholder: Description du bug
+    validations:
+      required: true
+  
+  - type: markdown
+    attributes:
+      value: |
+       -----
+       ## Test  
+
+  - type: textarea
+    id: test-description
+    attributes:
+      label: Description du test
+      description: Décrire le test à effectuer
+      placeholder: Description du test
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test-types
+    attributes:
+      label: Moyen de test
+      multiple: true
+      options:
+        - Demande d'essai (DE,STD)
+        - Test Grue SSR
+        - Test Labo
+
+      

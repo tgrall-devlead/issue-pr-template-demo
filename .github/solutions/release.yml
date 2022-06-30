@@ -1,0 +1,78 @@
+name: 📦 Release and Deploy
+on:
+  release:
+    types: [created]
+
+env:
+  AZ_RESOURCE_GROUP: "RG-AKSCluster" # Name of your Azure resource group
+  AZ_CLUSTER_NAME: "AKS-000" # name of your kubernetes cluster in Azure
+  IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+  IMAGE_NAME_WITH_TAG: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+
+
+jobs:
+
+  build_and_publish:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write 
+    steps:
+
+      - uses: actions/checkout@v2
+
+      # Login against a Docker registry except on PR
+      - name: Log into registry 
+        uses: docker/login-action@v1.13.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v2.9.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{env.IMAGE_NAME}}
+            ${{env.IMAGE_NAME_WITH_TAG}}
+
+
+  deploy_to_kubernetes:
+    name: "🌩️ - Deploy to Kubernetes"            
+    needs: build_and_publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      # login to azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # get kubernetes credentials/context    
+      - name: Get AKS Credentials
+        id: getContext
+        run: |
+          az aks get-credentials --resource-group ${{ env.AZ_RESOURCE_GROUP }} --name ${{ env.AZ_CLUSTER_NAME }} --file $GITHUB_WORKSPACE/kubeconfig
+          echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
+
+      - name: "Escaping Image Name"
+        run: |
+          IMAGE_NAME_ESC=$(echo $IMAGE_NAME_WITH_TAG | sed 's/\//\\\//g')
+          echo "IMAGE_NAME_ESC=$IMAGE_NAME_ESC" >> $GITHUB_ENV
+
+      - name: "🌩️ - Deploy"
+        run: |
+          sed -i 's/IMAGE_NAME/${{env.IMAGE_NAME_ESC}}/g' kubernetes/deployment.yml
+          kubectl apply -f ./kubernetes/deployment.yml 
+          echo "🏁 - Application ${{ github.repository }} deployed to kubernetes"
+  
