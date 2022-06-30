@@ -39,6 +39,7 @@ body:
         - 1.0.2
         - 1.0.3
         - 1.14.10
+        - 2.0.0
     validations:
       required: true
 
@@ -68,6 +69,13 @@ body:
         - Demande d'essai (DE,STD)
         - Test Grue SSR
         - Test Labo
+
+
+  - type: textarea
+    id: other-comments
+    attributes:
+      label: Autres commentaire
+      placeholder: Ajouter commentaires
 
       
   - type: markdown
